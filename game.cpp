@@ -1,16 +1,16 @@
-#include <string>
+#include <string.h>
 #include <iostream>
-#include <cmath> 
+#include <cmath>
 
 // For terminal delay
 #include <chrono>
 #include <thread>
 
 #include <fstream>
-#include <algorithm> 
+#include <algorithm>
 
 #include "game.h"
-using namespace std;
+ int Game::keeppoints = 0 ;
 Game::Game()
 {
     // Separate the screen to three windows
@@ -54,14 +54,61 @@ void Game::createInformationBoard()
 }
 
 void Game::renderInformationBoard() const
+{   if (has_colors() == FALSE)
 {
+    endwin();
+    printf("Your terminal does not support color\n");
+    exit(1);
+}
+
+    start_color();			/* Start color 			*/
+	init_pair(1, COLOR_RED, COLOR_BLACK);
+    wattron(this->mWindows[0], COLOR_PAIR(1)| A_BOLD);
     mvwprintw(this->mWindows[0], 1, 1, "Welcome to The Snake Game!");
     mvwprintw(this->mWindows[0], 2, 1, "Author: Lei Mao");
     mvwprintw(this->mWindows[0], 3, 1, "Website: https://github.com/leimao/");
     mvwprintw(this->mWindows[0], 4, 1, "Implemented using C++ and libncurses library.");
+    wattroff(this->mWindows[0],COLOR_PAIR(1)|A_BOLD);
+    init_pair(2, COLOR_GREEN, COLOR_GREEN);
+    wattron(this->mWindows[0], COLOR_PAIR(2)| A_BOLD);
+    mvwprintw(this->mWindows[0], 1, 50, "        ");
+    mvwprintw(this->mWindows[0], 2, 52, "  ");
+    mvwprintw(this->mWindows[0], 3, 54, "  ");
+    mvwprintw(this->mWindows[0], 4, 50, "        ");
+    mvwprintw(this->mWindows[0], 1, 60, "    ");
+    mvwprintw(this->mWindows[0], 1, 70, "  ");
+    mvwprintw(this->mWindows[0], 2, 60, "  ");
+    mvwprintw(this->mWindows[0], 2, 64, "  ");
+     mvwprintw(this->mWindows[0], 2, 70, "  ");
+    mvwprintw(this->mWindows[0], 3, 66, "  ");
+    mvwprintw(this->mWindows[0], 3, 60, "  ");
+    mvwprintw(this->mWindows[0], 3, 70, "  ");
+    mvwprintw(this->mWindows[0], 4, 68, "    ");
+    mvwprintw(this->mWindows[0], 4, 60, "  ");
+    //A
+    mvwprintw(this->mWindows[0], 1, 80, "  ");
+    mvwprintw(this->mWindows[0], 2, 78, "  ");
+    mvwprintw(this->mWindows[0], 2, 82, "  ");
+    mvwprintw(this->mWindows[0], 3, 76, "          ");
+    mvwprintw(this->mWindows[0], 4, 74, "  ");
+    mvwprintw(this->mWindows[0], 4, 86, "  ");
+    //K
+    mvwprintw(this->mWindows[0], 1, 90, "  ");
+    mvwprintw(this->mWindows[0], 1, 94, "  ");
+    mvwprintw(this->mWindows[0], 2, 90, "    ");
+    mvwprintw(this->mWindows[0], 3, 90, "    ");
+    mvwprintw(this->mWindows[0], 4, 90, "  ");
+    mvwprintw(this->mWindows[0], 4, 94, "  ");
+    //E
+    mvwprintw(this->mWindows[0], 1, 98, "      ");
+    mvwprintw(this->mWindows[0], 2, 98, "      ");
+    mvwprintw(this->mWindows[0], 3, 98, "  ");
+    mvwprintw(this->mWindows[0], 4, 98, "      ");
+    wattroff(this->mWindows[0], COLOR_PAIR(2)| A_BOLD);
     wrefresh(this->mWindows[0]);
-}
 
+}
+//wattron
 void Game::createGameBoard()
 {
     int startY = this->mInformationHeight;
@@ -83,8 +130,8 @@ void Game::createInstructionBoard()
 
 void Game::renderInstructionBoard() const
 {
-    mvwprintw(this->mWindows[2], 1, 1, "Manual");
 
+    mvwprintw(this->mWindows[2], 1, 1, "Manual");
     mvwprintw(this->mWindows[2], 3, 1, "Up: W");
     mvwprintw(this->mWindows[2], 4, 1, "Down: S");
     mvwprintw(this->mWindows[2], 5, 1, "Left: A");
@@ -99,7 +146,7 @@ void Game::renderInstructionBoard() const
 
 void Game::renderLeaderBoard() const
 {
-    // If there is not too much space, skip rendering the leader board 
+    // If there is not too much space, skip rendering the leader board
     if (this->mScreenHeight - this->mInformationHeight - 14 - 2 < 3 * 2)
     {
         return;
@@ -117,7 +164,7 @@ void Game::renderLeaderBoard() const
     wrefresh(this->mWindows[2]);
 }
 
-bool Game::renderRestartMenu() const
+int Game::renderRestartMenu() const
 {
     WINDOW * menu;
     int width = this->mGameBoardWidth * 0.5;
@@ -127,8 +174,7 @@ bool Game::renderRestartMenu() const
 
     menu = newwin(height, width, startY, startX);
     box(menu, 0, 0);
-    std::vector<std::string> menuItems = {"Restart", "Quit"};
-
+    std::vector<std::string> menuItems = {"Restart", "Quit","PAY $5 And Revive"};
     int index = 0;
     int offset = 4;
     mvwprintw(menu, 1, 1, "Your Final Score:");
@@ -138,6 +184,7 @@ bool Game::renderRestartMenu() const
     mvwprintw(menu, 0 + offset, 1, menuItems[0].c_str());
     wattroff(menu, A_STANDOUT);
     mvwprintw(menu, 1 + offset, 1, menuItems[1].c_str());
+    mvwprintw(menu, 2 + offset, 1, menuItems[2].c_str());
 
     wrefresh(menu);
 
@@ -180,16 +227,20 @@ bool Game::renderRestartMenu() const
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     delwin(menu);
-
+//restart 2 exit 0 pay 1
     if (index == 0)
     {
-        return true;
+        return 2;
     }
-    else
+    else if(index==1)
     {
-        return false;
+        return 0;
     }
-    
+    else if(index ==2)
+    {
+        return 1;
+    }
+
 }
 
 void Game::renderPoints() const
@@ -206,24 +257,11 @@ void Game::renderDifficulty() const
     wrefresh(this->mWindows[2]);
 }
 
-
-void Game::initializeItems() {
-
-    mPtrSnake->mItems.push_back(createRandomItem(chick));
-    mPtrSnake->mItems.push_back(createRandomItem(basketball));
-    mPtrSnake->mItems.push_back(createRandomItem(centre_parting));
-    mPtrSnake->mItems.push_back(createRandomItem(overall));
-
-}
-
 void Game::initializeGame()
 {
     this->mPtrSnake.reset(new Snake(this->mGameBoardWidth, this->mGameBoardHeight, this->mInitialSnakeLength));
-    this->changeSnakeSymbol('@');
-    this->initializeStatus();
     this->createRamdonFood();
     this->mPtrSnake->senseFood(this->mFood);
-    this->initializeItems();
     this->mDifficulty = 0;
     this->mPoints = 0;
     this->mDelay = this->mBaseDelay;
@@ -253,19 +291,111 @@ void Game::createRamdonFood()
 }
 
 void Game::renderFood() const
-{
+{   start_color();			/*color*/
+    init_pair(4, COLOR_YELLOW, COLOR_BLACK);
+    wattron(this->mWindows[1], COLOR_PAIR(4)| A_BOLD);
     mvwaddch(this->mWindows[1], this->mFood.getY(), this->mFood.getX(), this->mFoodSymbol);
     wrefresh(this->mWindows[1]);
+    wattroff(this->mWindows[1], COLOR_PAIR(4)| A_BOLD);
 }
 
 void Game::renderSnake() const
 {
     int snakeLength = this->mPtrSnake->getLength();
     std::vector<SnakeBody>& snake = this->mPtrSnake->getSnake();
+
+    //新增加的蛇头显示
+    Direction DIR = this->mPtrSnake->getDirection();
+
+    if(this->mDifficulty >=1&&this->mDifficulty<=2){
+//只有长度超过7才长出头
+    start_color();			/*color*/
+    init_pair(4, COLOR_RED, COLOR_BLACK);
+    wattron(this->mWindows[1], COLOR_PAIR(4)| A_BOLD);
+
+    if(DIR== Direction::Up){
+    mvwaddch(this->mWindows[1], snake[0].getY()+1, snake[0].getX()+1, '>');
+    mvwaddch(this->mWindows[1], snake[0].getY()+1, snake[0].getX()-1, '<');
+    }
+    if(DIR== Direction::Down){
+    mvwaddch(this->mWindows[1], snake[0].getY()-1, snake[0].getX()+1, '>');
+    mvwaddch(this->mWindows[1], snake[0].getY()-1, snake[0].getX()-1, '<');
+    }
+    if(DIR== Direction::Left){
+    mvwprintw(this->mWindows[1], snake[0].getY()-1, snake[0].getX()+1, "/\\");
+    mvwprintw(this->mWindows[1], snake[0].getY()+1, snake[0].getX()+1, "\\/");
+    }
+    if(DIR== Direction::Right){
+    mvwprintw(this->mWindows[1], snake[0].getY()-1, snake[0].getX()-1, "/\\");
+    mvwprintw(this->mWindows[1], snake[0].getY()+1, snake[0].getX()-1, "\\/");
+    }
+    wattroff(this->mWindows[1], COLOR_PAIR(4)| A_BOLD);
+
+
+     start_color();			/*color*/
+    init_pair(3, COLOR_RED, COLOR_BLUE);
+    wattron(this->mWindows[1], COLOR_PAIR(3)| A_BOLD);
     for (int i = 0; i < snakeLength; i ++)
     {
         mvwaddch(this->mWindows[1], snake[i].getY(), snake[i].getX(), this->mSnakeSymbol);
+
     }
+    wattroff(this->mWindows[1], COLOR_PAIR(3)| A_BOLD);}
+    //end
+
+
+
+
+    else if(this->mDifficulty >=3){//只有长度超过15才长出头
+    start_color();			/*color*/
+    init_pair(5, COLOR_BLUE, COLOR_RED);
+    wattron(this->mWindows[1], COLOR_PAIR(5)| A_BOLD);
+
+    if(DIR== Direction::Up){
+    mvwaddch(this->mWindows[1], snake[0].getY()+1, snake[0].getX()+1, '>');
+    mvwaddch(this->mWindows[1], snake[0].getY()+1, snake[0].getX()-1, '<');
+    }
+    if(DIR== Direction::Down){
+    mvwaddch(this->mWindows[1], snake[0].getY()-1, snake[0].getX()+1, '>');
+    mvwaddch(this->mWindows[1], snake[0].getY()-1, snake[0].getX()-1, '<');
+    }
+    if(DIR== Direction::Left){
+    mvwprintw(this->mWindows[1], snake[0].getY()-1, snake[0].getX()+1, "/\\");
+    mvwprintw(this->mWindows[1], snake[0].getY()+1, snake[0].getX()+1, "\\/");
+    }
+    if(DIR== Direction::Right){
+    mvwprintw(this->mWindows[1], snake[0].getY()-1, snake[0].getX()-1, "/\\");
+    mvwprintw(this->mWindows[1], snake[0].getY()+1, snake[0].getX()-1, "\\/");
+    }
+    wattroff(this->mWindows[1], COLOR_PAIR(5)| A_BOLD);
+
+
+    for (int i = 0; i < snakeLength; i ++)
+    {   int t;
+        t = rand()%5;
+        if(i!=0&&i!=1&&i!=2){
+        start_color();			/*color*/
+        init_pair(2, COLOR_BLUE, COLOR_BLACK);
+        init_pair(1, COLOR_RED, COLOR_BLACK);
+        init_pair(0, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(3, COLOR_GREEN, COLOR_BLACK);
+        init_pair(4, COLOR_WHITE, COLOR_BLACK);
+
+        wattron(this->mWindows[1], COLOR_PAIR(t)| A_BOLD);}
+        mvwaddch(this->mWindows[1], snake[i].getY(), snake[i].getX(), this->mSnakeSymbol);
+        if(i!=0&&i!=1&&i!=2){
+        wattroff(this->mWindows[1], COLOR_PAIR(t)| A_BOLD);
+    }}}
+    else
+    {     start_color();			/*color*/
+    init_pair(5, COLOR_BLUE, COLOR_RED);
+    wattron(this->mWindows[1], COLOR_PAIR(5)| A_BOLD);
+        for (int i = 0; i < snakeLength; i ++){
+        mvwaddch(this->mWindows[1], snake[i].getY(), snake[i].getX(), this->mSnakeSymbol);
+    }wattroff(this->mWindows[1], COLOR_PAIR(5)| A_BOLD);
+    }
+
+
     wrefresh(this->mWindows[1]);
 }
 
@@ -273,55 +403,34 @@ void Game::controlSnake() const
 {
     int key;
     key = getch();
-
     switch(key)
     {
         case 'W':
         case 'w':
         case KEY_UP:
         {
-            if (!withCentre_parting){
-                this->mPtrSnake->changeDirection(Direction::Up);
-            }else{
-                mPtrSnake->changeDirection(Direction::Down);
-            }
-
+            this->mPtrSnake->changeDirection(Direction::Up);
             break;
         }
         case 'S':
         case 's':
         case KEY_DOWN:
         {
-            if (!withCentre_parting){
-                this->mPtrSnake->changeDirection(Direction::Down);
-            }else{
-                mPtrSnake->changeDirection(Direction::Up);
-            }
-
+            this->mPtrSnake->changeDirection(Direction::Down);
             break;
         }
         case 'A':
         case 'a':
         case KEY_LEFT:
         {
-            if (!withCentre_parting){
-                this->mPtrSnake->changeDirection(Direction::Left);
-            }else{
-                mPtrSnake->changeDirection(Direction::Right);
-            }
-
+            this->mPtrSnake->changeDirection(Direction::Left);
             break;
         }
         case 'D':
         case 'd':
         case KEY_RIGHT:
         {
-            if(!withCentre_parting){
-                this->mPtrSnake->changeDirection(Direction::Right);
-            }else{
-                mPtrSnake->changeDirection(Direction::Left);
-            }
-
+            this->mPtrSnake->changeDirection(Direction::Right);
             break;
         }
         default:
@@ -351,8 +460,8 @@ void Game::renderBoards() const
 
 void Game::adjustDelay()
 {
-    this->mDifficulty = this->mPoints / 5 + moreDifficulty;
-    if (int(mPoints) % 5 == 0)
+    this->mDifficulty = this->mPoints / 5;
+    if (mPoints % 5 == 0)
     {
         this->mDelay = this->mBaseDelay * pow(0.75, this->mDifficulty);
     }
@@ -362,40 +471,31 @@ void Game::runGame()
 {
     bool moveSuccess;
     int key;
-    while (lives > 0)
+    this->mPoints = this->keeppoints;
+    while (true)
     {
         this->controlSnake();
         werase(this->mWindows[1]);
         box(this->mWindows[1], 0, 0);
 
-
         bool eatFood = this->mPtrSnake->moveFoward();
         bool collision = this->mPtrSnake->checkCollision();
         if (collision == true)
         {
-            if (!withOverall) break;
-            else{
-                withOverall = false;
-                mPtrSnake->mItems[3] = createRandomItem(overall);
-                shoulderCharge();
-                if (runintoCorner) break;
-            }
+            break;
         }
         this->renderSnake();
-
         if (eatFood == true)
         {
             this->mPoints += 1;
             this->createRamdonFood();
             this->mPtrSnake->senseFood(this->mFood);
+            this->adjustDelay();
         }
-        this->adjustDelay();
-        eatItem();
-        influenceBychick();
         this->renderFood();
         this->renderDifficulty();
         this->renderPoints();
-        this->renderItem();
+
         std::this_thread::sleep_for(std::chrono::milliseconds(this->mDelay));
 
         refresh();
@@ -405,7 +505,7 @@ void Game::runGame()
 void Game::startGame()
 {
     refresh();
-    bool choice;
+    int choice;//改变choice的类型，多加选项
     while (true)
     {
         this->readLeaderBoard();
@@ -415,10 +515,16 @@ void Game::startGame()
         this->updateLeaderBoard();
         this->writeLeaderBoard();
         choice = this->renderRestartMenu();
-        if (choice == false)
+        if (choice == 0)
         {
             break;
         }
+        else if(choice ==1){
+            this->keeppoints = this->mPoints;
+            this->revive();
+        }
+        else if(choice ==2){this->keeppoints =0;
+        this->revive();}
     }
 }
 
@@ -475,207 +581,12 @@ bool Game::writeLeaderBoard()
     fhand.close();
     return true;
 }
-/*
- * Here is where I begin to write my codes.
- * I also revise some codes in the above codes.
- */
+//改动再render 上并将rungame 和bool menu 类型改为int
 
-bool Game::isOccupied(int i, int j){
-    for (Item it: mPtrSnake->mItems){
-        if (it.getX() == i && it.getY() == j) return true;
-    }return false;
+void Game::revive()
+{
+    this->mInitialSnakeLength =this->keeppoints+2;
 }
-
-Item Game::createRandomItem(type tp) {
-    std::vector<SnakeBody> availableGrids;
-    for (int i = 1; i < this->mGameBoardHeight - 1; i ++)
-    {
-        for (int j = 1; j < this->mGameBoardWidth - 1; j ++)
-        {
-            if(this->mPtrSnake->isPartOfSnake(j, i) || isOccupied(j, i) || (i == mFood.getX() && j == mFood.getY()))
-            {
-                continue;
-            }
-            else
-            {
-                availableGrids.push_back(SnakeBody(j, i));
-            }
-        }
-    }
-    int random_idx = std::rand() % availableGrids.size();
-    Item it(availableGrids[random_idx].getX(), availableGrids[random_idx].getY(), tp);
-    return it;
-}
-
-void Game::renderItem() const {
-    for (Item it : mPtrSnake->mItems){
-        int y = it.getY();
-        int x = it.getX();
-        char symbol = it.getSymbol();
-        mvwaddch(this->mWindows[1], y, x, symbol);
-        wrefresh(this->mWindows[1]);
-    }
-}
-
-void Game::influenceBychick() {
-    Item ch = mPtrSnake->mItems[0];
-    SnakeBody head = mPtrSnake->mSnake[0];
-
-    if ((head.getX() <= ch.getX() + 3) && (head.getX() >= ch.getX() - 3 )&&(head.getY() <= ch.getY() + 3) && (head.getY() >= ch.getY() - 3) )
-    {
-        nearChick = true;
-    }else  nearChick = false;
-    if (nearChick ){
-        if (!isaccelerated){
-            isaccelerated = true;
-            moreDifficulty++;
-        }
-    }else{
-        if (isaccelerated) {
-            moreDifficulty--;
-            isaccelerated = false;
-        }
-    }
-}
-
-void Game::eatItem() {
-    bool flag = mPtrSnake->eatItem();
-    if (flag){
-        //delete the item and create a new one as well as run the function of the item.
-        SnakeBody Head = mPtrSnake->mSnake[0];
-        for (int i = 0; i < mPtrSnake->mItems.size(); i++){
-            Item it = mPtrSnake->mItems[i];
-            if (it.getX() == Head.getX() && it.getY() == Head.getY()){
-                mPtrSnake->mItems[i] = Item(-1, -1, it.getType());//eat the item up and dismiss it.
-                runItem(it.getType());
-                break;
-            }
-        }
-    }
-}
-
-
-
-void Game::runItem(type tp){
-    switch (tp) {
-        case basketball:runBasketball();break;
-        case centre_parting: runCentre_parting();break;
-        case overall: runOverall();break;
-        case chick: runChick();break;
-    }
-}
-
-void Game::runBasketball() {
-    withBasketball = true;
-    moreDifficulty++;
-}
-
-/*
- * Without centre_parting, the snake will perform logically, however,
- * with it, the snake will lead to the opposite direction.
- * Additionally, the symbol of snake will change to '?' when it loses its direction.
- */
-void Game::runCentre_parting() {
-    mPtrSnake->mItems[2] = createRandomItem(centre_parting);
-    if (withCentre_parting) {
-        withCentre_parting = false;
-        changeSnakeSymbol('@');
-    }
-    else {
-        withCentre_parting = true;
-        changeSnakeSymbol('?');
-    }
-}
-
-void Game::changeSnakeSymbol(char ch) {
-    mSnakeSymbol = ch;
-}
-
-void Game::runOverall(){
-    withOverall = true;
-}
-
-/*
- * ShoulderCharge, which is also named "Tieshankao" in Chinese,
- * can change the direction and avoid the snake dying from collide into the wall.
- */
-void Game::shoulderCharge() {
-
-    if (mPtrSnake->hitWall()) {
-        SnakeBody head = mPtrSnake->mSnake[0];
-        SnakeBody leftHead = createLeftHead(mPtrSnake->mSnake[1]);
-        if (leftHead.getX() != 0 && leftHead.getX() != (mScreenWidth - 1)&&
-        leftHead.getY() != 0 && leftHead.getY() != (mScreenHeight - 1)){
-            mPtrSnake->mSnake.erase(std::remove(mPtrSnake->mSnake.begin(),
-                                                mPtrSnake->mSnake.end(),head), mPtrSnake->mSnake.end());
-            mPtrSnake->mSnake.insert(mPtrSnake->mSnake.begin(), leftHead);
-            switch (mPtrSnake->mDirection) {
-                case Direction::Up: mPtrSnake->changeDirection(Direction::Left);
-                    break;
-                case Direction::Down: mPtrSnake->changeDirection(Direction::Right);
-                    break;
-                case Direction::Left: mPtrSnake->changeDirection(Direction::Down);
-                    break;
-                case Direction::Right: mPtrSnake->changeDirection(Direction::Up);
-                    break;
-            }
-        }else runintoCorner = true;
-    }
-}
-
-SnakeBody Game::createLeftHead(SnakeBody neck) {
-    int nx = neck.getX(), ny = neck.getY();
-    int hx , hy;
-    switch (mPtrSnake->mDirection) {
-        case Direction::Up:{
-            hx = nx - 1;
-            hy = ny;
-        }break;
-        case Direction::Down:{
-            hx = nx + 1;
-            hy = ny;
-        }break;
-        case Direction::Left:{
-            hx = nx ;
-            hy = ny + 1;
-        }break;
-        case Direction::Right:{
-            hx = nx ;
-            hy = ny - 1;
-        }break;
-    }
-    return SnakeBody(hx, hy);
-}
-
-void Game::runChick() {
-    if (!withBasketball) lives--;
-    else{
-        withBasketball = false;
-        moreDifficulty--;
-        mPtrSnake->mItems[1] = createRandomItem(basketball);
-        mPoints += 2.5;
-        mPtrSnake->mItems[0] = createRandomItem(chick);
-    }
-}
-
-void Game::initializeStatus() {
-    changeSnakeSymbol('@');
-    withBasketball = false;
-    withCentre_parting = false;
-    withOverall = false;
-    nearChick = false;
-    isaccelerated = false;
-    lives = 1;
-    moreDifficulty = 0;
-    runintoCorner = false;
-}
-
-
-
-
-
-
-
 
 
 

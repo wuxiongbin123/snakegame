@@ -6,8 +6,6 @@
 #include "snake.h"
 
 
-using namespace std;
-
 SnakeBody::SnakeBody()
 {
 }
@@ -239,14 +237,14 @@ bool Snake::moveFoward()
     if (this->touchFood())
     {
         SnakeBody newHead = this->mFood;
-        this->mSnake.insert(this->mSnake.begin(), newHead); 
+        this->mSnake.insert(this->mSnake.begin(), newHead);
         return true;
     }
     else
     {
         this->mSnake.pop_back();
         SnakeBody newHead = this->createNewHead();
-        this->mSnake.insert(this->mSnake.begin(), newHead); 
+        this->mSnake.insert(this->mSnake.begin(), newHead);
         return false;
     }
 }
@@ -269,58 +267,8 @@ int Snake::getLength()
     return this->mSnake.size();
 }
 
-bool Snake::isOccupied(int x, int y) {
-    for (Item it: mItems){
-        int mx = it.getX(), my = it.getY();
-        if (x == mx && y == my) return true;
-    }return false;
+Direction Snake::getDirection()
+{
+    return mDirection;
 }
-
-bool Snake::eatItem() {
-    SnakeBody Head = mSnake[0];
-    for (Item it: mItems){
-        if (it.getX() == Head.getX() && it.getY() == Head.getY()) return true;
-    }return false;
-}
-
-
-int Item::getX() const {
-    return this->mX;
-}
-
-int Item::getY() const {
-    return this->mY;
-}
-
-int Item::getSymbol() const {
-    return symbol;
-}
-
-Item::Item(int x, int y, type t) {
-    mX = x;
-    mY = y;
-    tp = t;
-    switch (tp) {
-        case basketball:
-            symbol = 'O';break;
-        case chick:
-            symbol = '%';break;
-        case centre_parting:
-            symbol = '^';break;
-        case overall:
-            symbol = '&';break;
-    }
-}
-
-void Item::visitSnake() {
-
-}
-
-
-
-type Item::getType() const{
-    return tp;
-}
-
-
 

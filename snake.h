@@ -3,8 +3,6 @@
 
 #include <vector>
 
-
-class Game;
 enum class Direction
 {
     Up = 0,
@@ -25,24 +23,6 @@ private:
     int mX;
     int mY;
 };
-enum type{basketball, chick,  centre_parting, overall};
-
-class Item{
-private:
-    int mX, mY;
-    type tp;
-    char symbol;
-public:
-    Item();
-    Item(int x, int y, type t);
-    int getX() const;
-    int getY() const;
-    int getSymbol() const;
-    type getType() const;
-    void visitSnake();
-};
-
-
 
 // Snake class should have no depency on the GUI library
 class Snake
@@ -69,12 +49,9 @@ public:
     int getLength();
     SnakeBody createNewHead();
     bool moveFoward();
-    int getBoardWidth() const{ return mGameBoardHeight;}
-    int getBoardHeight() const{ return mGameBoardHeight;}
-    friend Item;
-    friend Game;
-    bool isOccupied(int x, int y);
-    bool eatItem();
+
+    Direction getDirection();
+
 
 private:
     const int mGameBoardWidth;
@@ -83,9 +60,7 @@ private:
     const int mInitialSnakeLength;
     Direction mDirection;
     SnakeBody mFood;
-
     std::vector<SnakeBody> mSnake;
-    std::vector<Item> mItems;
 };
 
 #endif
