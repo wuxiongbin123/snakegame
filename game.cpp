@@ -11,6 +11,7 @@
 
 #include "game.h"
  int Game::keeppoints = 0 ;
+ int Game::shut = 0;
 Game::Game()
 {
     // Separate the screen to three windows
@@ -101,9 +102,10 @@ void Game::renderInformationBoard() const
     mvwprintw(this->mWindows[0], 4, 94, "  ");
     //E
     mvwprintw(this->mWindows[0], 1, 98, "      ");
-    mvwprintw(this->mWindows[0], 2, 98, "      ");
-    mvwprintw(this->mWindows[0], 3, 98, "  ");
-    mvwprintw(this->mWindows[0], 4, 98, "      ");
+    mvwprintw(this->mWindows[0], 2, 98, "  ");
+    mvwprintw(this->mWindows[0], 2, 102, "  ");
+    mvwprintw(this->mWindows[0], 3, 98, "    ");
+    mvwprintw(this->mWindows[0], 4, 98, "       ");
     wattroff(this->mWindows[0], COLOR_PAIR(2)| A_BOLD);
     wrefresh(this->mWindows[0]);
 
@@ -164,7 +166,7 @@ void Game::renderLeaderBoard() const
     wrefresh(this->mWindows[2]);
 }
 
-int Game::renderRestartMenu() const
+int Game::renderRestartMenu()
 {
     WINDOW * menu;
     int width = this->mGameBoardWidth * 0.5;
@@ -218,6 +220,7 @@ int Game::renderRestartMenu() const
                 wattroff(menu, A_STANDOUT);
                 break;
             }
+
         }
         wrefresh(menu);
         if (key == ' ' || key == 10)
@@ -304,11 +307,11 @@ void Game::renderSnake() const
     int snakeLength = this->mPtrSnake->getLength();
     std::vector<SnakeBody>& snake = this->mPtrSnake->getSnake();
 
-    //�����ӵ���ͷ��ʾ
+    //新增加的蛇头显示
     Direction DIR = this->mPtrSnake->getDirection();
 
     if(this->mDifficulty >=1&&this->mDifficulty<=2){
-//ֻ�г��ȳ���7�ų���ͷ
+//只有长度超过7才长出头
     start_color();			/*color*/
     init_pair(4, COLOR_RED, COLOR_BLACK);
     wattron(this->mWindows[1], COLOR_PAIR(4)| A_BOLD);
@@ -346,7 +349,7 @@ void Game::renderSnake() const
 
 
 
-    else if(this->mDifficulty >=3){//ֻ�г��ȳ���15�ų���ͷ
+    else if(this->mDifficulty >=3){//只有长度超过15才长出头
     start_color();			/*color*/
     init_pair(5, COLOR_BLUE, COLOR_RED);
     wattron(this->mWindows[1], COLOR_PAIR(5)| A_BOLD);
@@ -399,7 +402,7 @@ void Game::renderSnake() const
     wrefresh(this->mWindows[1]);
 }
 
-void Game::controlSnake() const
+void Game::controlSnake()
 {
     int key;
     key = getch();
@@ -433,6 +436,13 @@ void Game::controlSnake() const
             this->mPtrSnake->changeDirection(Direction::Right);
             break;
         }
+            case 'H':
+            case'h':
+                {
+                    this->shut++;
+
+                    this->help();
+                }
         default:
         {
             break;
@@ -472,11 +482,13 @@ void Game::runGame()
     bool moveSuccess;
     int key;
     this->mPoints = this->keeppoints;
+
     while (true)
     {
         this->controlSnake();
         werase(this->mWindows[1]);
         box(this->mWindows[1], 0, 0);
+        if(shut%2==0){
 
         bool eatFood = this->mPtrSnake->moveFoward();
         bool collision = this->mPtrSnake->checkCollision();
@@ -499,13 +511,13 @@ void Game::runGame()
         std::this_thread::sleep_for(std::chrono::milliseconds(this->mDelay));
 
         refresh();
-    }
+    }}
 }
 
 void Game::startGame()
 {
     refresh();
-    int choice;//�ı�choice�����ͣ����ѡ��
+    int choice;//改变choice的类型，多加选项
     while (true)
     {
         this->readLeaderBoard();
@@ -581,14 +593,50 @@ bool Game::writeLeaderBoard()
     fhand.close();
     return true;
 }
-//�Ķ���render �ϲ���rungame ��bool menu ���͸�Ϊint
+//改动再render 上并将rungame 和bool menu 类型改为int
 
 void Game::revive()
 {
     this->mInitialSnakeLength =this->keeppoints+2;
 }
+void Game::shutup()
+{
+    int key;
+    key = getch();
+    if (key == 'H'||key =='h')
+    {
+    shut++;}
+}
+
+void Game::help()
+{
+    WINDOW * help;
+    int width = this->mGameBoardWidth * 0.8;
+    int height = this->mGameBoardHeight * 0.8;
+    int startX = this->mGameBoardWidth * 0.1;
+    int startY = this->mGameBoardHeight * 0.1 + this->mInformationHeight;
+
+    help = newwin(height, width, startY, startX);
+    box(help, 0, 0);
+    int index = 0;
+    int offset = 4;
+
+    wattron(help, A_STANDOUT);
+    mvwprintw(help, 1, 1, "abc");//英文
+    mvwprintw(help, 2, 1, "你好");
+mvwprintw(help, 3, 1, " 1.2小鸡仔擅长唱跳rap，当蛇在其周围的九宫格之内，蛇会因为小鸡仔的rap而热血沸腾");
+mvwprintw(help, 4, 1, "提高速度，当离开影响范围时，会恢复原来的速度");
+mvwprintw(help, 5, 1, "小鸡仔爱好是打篮球，如果蛇经过时携带篮球，小鸡仔会拿走篮球，并加上2.5分作为酬劳");
+mvwprintw(help, 6, 1, "但是如果没有携带篮球，直面小鸡仔时就会爆炸");
+mvwprintw(help, 7, 1, "中分：因过于飘逸，蛇在移动过程中会晕头转向，因此在（吃到下一个中分之前/计时3s之内）蛇的运动方向会改变，并且蛇的全身会变成?");
+mvwprintw(help, 8, 1, "背带裤：当蛇头撞到墙壁时，会触发铁山靠技能，脱落左肩的吊带，更改移动方向为左边。");
 
 
+    wattroff(help, A_STANDOUT);
 
+    this->shutup();
+    wrefresh(help);
+
+}
 
 

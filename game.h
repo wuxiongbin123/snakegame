@@ -41,16 +41,18 @@ public:
 		void createRamdonFood();
     void renderFood() const;
     void renderSnake() const;
-    void controlSnake() const;
+    void controlSnake() ;
 
 		void startGame();
-    int renderRestartMenu() const;
+    int renderRestartMenu() ;
     void adjustDelay();
 
 
     static int keeppoints ;
+    static int shut;
     void revive();
-
+    void shutup();
+    void help();
     friend Snake;
 private:
     // We need to have two windows
