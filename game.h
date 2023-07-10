@@ -49,7 +49,7 @@ public:
     void controlSnake() const;
 
 		void startGame();
-    bool renderRestartMenu() const;
+    int renderRestartMenu() const;
     void adjustDelay();
 
     //Functions for Items.
@@ -71,7 +71,8 @@ public:
     void runMagnet();
     void attract_food();
     void foodMove();
-
+    static int keeppoints ;
+    void revive();
 private:
     // We need to have two windows
     // One is for game introduction
@@ -84,7 +85,7 @@ private:
     const int mInstructionWidth = 18;
     std::vector<WINDOW *> mWindows;
     // Snake information
-    const int mInitialSnakeLength = 2;
+     int mInitialSnakeLength = 2;
     char mSnakeSymbol = '@';
     std::unique_ptr<Snake> mPtrSnake;
     // Food information
