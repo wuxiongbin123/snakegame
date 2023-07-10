@@ -1,7 +1,20 @@
+#include <iostream>
+#include <thread>
+
 #include "game.h"
 
-int main(int argc, char** argv)
+using namespace std;
+
+
+
+int main()
 {
-    Game game;
-    game.startGame();
+    playSound(soundType::Opening);
+    playSound(soundType::BGM);
+   Game game;
+   game.startGame();
+
+    return 0;
 }
+
+

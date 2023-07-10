@@ -1,13 +1,17 @@
 #ifndef GAME_H
 #define GAME_H
-
+#include "music.h"
 #include "curses.h"
 #include <string>
 #include <vector>
 #include <memory>
-
 #include "snake.h"
-
+#include <ctime>
+#include <cmath>
+#include <thread>
+#include <windows.h>
+#include "mmsystem.h"
+#pragma comment(lib, "winmm.lib")
 
 class Game
 {
@@ -15,7 +19,7 @@ public:
     Game();
     ~Game();
 
-		void createInformationBoard();
+    void createInformationBoard();
     void renderInformationBoard() const;
 
     void createGameBoard();
@@ -40,20 +44,34 @@ public:
 
 		void createRamdonFood();
     void renderFood() const;
+    void renderItem() const;
     void renderSnake() const;
-    void controlSnake() ;
+    void controlSnake() const;
 
 		void startGame();
-    int renderRestartMenu() ;
+    bool renderRestartMenu() const;
     void adjustDelay();
 
+    //Functions for Items.
+    friend Item;
+    bool isOccupied(int x, int y);
+    void initializeItems();
+    Item createRandomItem(type tp);
+    void eatItem();
+    void runItem(type tp);
+    void runBasketball();
+    void runCentre_parting();
+    void runOverall();
+    void runChick();
+    void influenceBychick();
+    void changeSnakeSymbol(char ch);
+    void shoulderCharge();
+    SnakeBody createLeftHead(SnakeBody neck);
+    void initializeStatus();
+    void runMagnet();
+    void attract_food();
+    void foodMove();
 
-    static int keeppoints ;
-    static int shut;
-    void revive();
-    void shutup();
-    void help();
-    friend Snake;
 private:
     // We need to have two windows
     // One is for game introduction
@@ -66,24 +84,37 @@ private:
     const int mInstructionWidth = 18;
     std::vector<WINDOW *> mWindows;
     // Snake information
-     int mInitialSnakeLength = 2;
-    const char mSnakeSymbol = '@';
+    const int mInitialSnakeLength = 2;
+    char mSnakeSymbol = '@';
     std::unique_ptr<Snake> mPtrSnake;
     // Food information
     SnakeBody mFood;
     const char mFoodSymbol = '#';
-    int mPoints = 0;
+    float mPoints = 0;
     int mDifficulty = 0;
     int mBaseDelay = 100;
     int mDelay;
     const std::string mRecordBoardFilePath = "record.dat";
     std::vector<int> mLeaderBoard;
+    //std::vector<Item> GItems;
     const int mNumLeaders = 3;
 
+
+    //Items.
+    bool withBasketball = false;
+    bool withCentre_parting = false;
+    bool withOverall = false;
+    bool withMagnet = false;
+    bool nearChick = false;
+    bool isaccelerated = false;
+    int lives = 1;
+    int moreDifficulty = 0;
+    bool runintoCorner = false;
+    int mCounter_magnet = 0;
+    clock_t start_magnet;
+    clock_t end_magnet;
+    double duration;
 
 };
 
 #endif
-
-
-//复活，根据point初始化开始的点数，如果太长则有上限
