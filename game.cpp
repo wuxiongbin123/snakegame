@@ -891,11 +891,11 @@ void Game::revive()
 // 启动奖励机制
 void Game::startReward()
 {
-    if (this->mPtrSnake->getLength() % 6 == 0)
+    if (this->mPtrSnake->getLength() % 5 == 0)
     {
         this->mRewardState = RewardState::Active;
-        this->mRewardCountdown = 8;
-        this->mRewardPoints = 21;
+        this->mRewardCountdown = 5;
+        this->mRewardPoints = 10;
         this->adjustDelay();
     }
 }
@@ -944,7 +944,7 @@ void Game::processReward()
     {
         // 在倒计时状态下，更新剩余时间并计算分数
         this->updateRewardCountdown();
-        this->mPoints += 3;
+        this->mPoints += 2;
         this->renderPoints();
         this->updateRewardTimeRemaining();
 
