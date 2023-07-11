@@ -76,6 +76,11 @@ public:
     void help()  const;
     static int shut;
         void shutup() const ;
+        void startReward();
+    void stopReward();
+    void updateRewardCountdown();
+    void processReward();
+    void updateRewardTimeRemaining();
 private:
     // We need to have two windows
     // One is for game introduction
@@ -105,6 +110,10 @@ private:
 
 
     //Items.
+    bool initializeBasketball = false;
+    bool initializeCentre_parting = false;
+    bool initializeOverall = false;
+    bool initializeMagnet = false;
     bool withBasketball = false;
     bool withCentre_parting = false;
     bool withOverall = false;
@@ -118,6 +127,16 @@ private:
     clock_t start_magnet;
     clock_t end_magnet;
     double duration;
+    enum class RewardState
+{
+    Inactive,   // Î´¼¤»î
+    Active,     // ¼¤»î×´Ì¬
+    Countdown   // µ¹¼ÆÊ±×´Ì¬
+};
+    RewardState mRewardState;
+    int mRewardCountdown;
+    int mRewardPoints;
+    int mRewardTimeRemaining;
 
 };
 

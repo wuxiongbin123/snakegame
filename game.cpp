@@ -268,16 +268,6 @@ void Game::renderDifficulty() const
 }
 
 
-void Game::initializeItems() {
-
-    mPtrSnake->mItems.push_back(createRandomItem(chick));
-    mPtrSnake->mItems.push_back(createRandomItem(basketball));
-    mPtrSnake->mItems.push_back(createRandomItem(centre_parting));
-    mPtrSnake->mItems.push_back(createRandomItem(overall));
-    Item mg(51, 7, magnet);
-    mPtrSnake->mItems.push_back(mg);
-
-}
 
 void Game::initializeGame()
 {
@@ -287,7 +277,6 @@ void Game::initializeGame()
     //this->createRamdonFood();
     mFood.reset(51,4);
     this->mPtrSnake->senseFood(this->mFood);
-    this->initializeItems();
     this->mDifficulty = 0;
     this->mPoints = 0;
     this->mDelay = this->mBaseDelay;
@@ -528,6 +517,23 @@ void Game::runGame()
     this->mPoints = this->keeppoints;
     while (lives > 0)
     {
+        if (this->mPoints == 5 && !initializeBasketball) {
+            initializeBasketball = true;
+            mPtrSnake->mItems.push_back(createRandomItem(chick));//If points >=5, then emerge.
+            mPtrSnake->mItems.push_back(createRandomItem(basketball));//p >= 5;
+        }
+        if (this->mPoints >= 10 && !initializeCentre_parting) {
+            initializeCentre_parting = true;
+            mPtrSnake->mItems.push_back(createRandomItem(centre_parting));
+        }
+        if (this->mPoints >= 10 && !initializeOverall) {
+            initializeOverall = true;
+            mPtrSnake->mItems.push_back(createRandomItem(overall));
+        }
+        if (this->mPoints >= 15 && !initializeMagnet) {
+            initializeMagnet = true;
+            mPtrSnake->mItems.push_back(createRandomItem(magnet));
+        }
         this->controlSnake();
         werase(this->mWindows[1]);
         box(this->mWindows[1], 0, 0);
@@ -553,6 +559,7 @@ void Game::runGame()
             this->mPoints += 1;
             this->createRamdonFood();
             this->mPtrSnake->senseFood(this->mFood);
+
         }
 
         eatItem();
@@ -586,7 +593,9 @@ void Game::startGame()
         choice = this->renderRestartMenu();
         if (choice == 0)
         {
+            playSound(soundType::Quit);
             break;
+
         }
         else if(choice ==1){
             this->keeppoints = this->mPoints;
@@ -695,6 +704,7 @@ void Game::renderItem() const {
 }
 
 void Game::influenceBychick() {
+    if (mPoints <= 5) return;
     Item ch = mPtrSnake->mItems[0];
     SnakeBody head = mPtrSnake->mSnake[0];
 
@@ -826,7 +836,12 @@ SnakeBody Game::createLeftHead(SnakeBody neck) {
 }
 
 void Game::runChick() {
-    if (!withBasketball) lives--;
+    if (!withBasketball)
+    {
+        playSound(soundType::CollisionChicken);
+        lives--;
+    }
+
     else{
         withBasketball = false;
         moreDifficulty--;
@@ -945,6 +960,88 @@ void Game::shutup() const
 void Game::revive()
 {
     this->mInitialSnakeLength =this->keeppoints+2;
+}
+
+/*
+if (mPoints % 5 == 0)
+    {
+        this->mDelay = this->mBaseDelay * pow(0.75, this->mDifficulty);
+    }
+}
+*/
+
+// 启动奖励机制
+void Game::startReward()
+{
+    if (( (int)mPoints) % 5 == 0)
+    {
+        this->mRewardState = RewardState::Active;
+        this->mRewardCountdown = 5;
+        this->mRewardPoints = 10;
+        this->adjustDelay();
+    }
+}
+
+// 停止奖励机制
+void Game::stopReward()
+{
+    this->mRewardState = RewardState::Inactive;
+    this->mRewardCountdown = 0;
+    this->mRewardPoints = 0;
+    this->adjustDelay();
+}
+
+// 更新奖励倒计时
+void Game::updateRewardCountdown()
+{
+    if (this->mRewardState == RewardState::Countdown)
+    {
+        this->mRewardCountdown--;
+        // 当倒计时达到0时，停止奖励
+        if (this->mRewardCountdown <= 0)
+        {
+            this->stopReward();
+        }
+        this->adjustDelay();
+    }
+    this->mRewardTimeRemaining = this->mRewardCountdown;
+    this->updateRewardTimeRemaining();
+
+}
+
+// 处理奖励触发时的逻辑
+void Game::processReward()
+{
+    if (this->mRewardState == RewardState::Active)
+    {
+        // 触发奖励时，增加蛇的长度
+        for (int i = 0; i < this->mRewardPoints; i++)
+        {
+            this->mPtrSnake->moveFoward();
+        }
+        // 进入倒计时状态
+        this->mRewardState = RewardState::Countdown;
+    }
+    else if (this->mRewardState == RewardState::Countdown)
+    {
+        // 在倒计时状态下，更新剩余时间并计算分数
+        this->updateRewardCountdown();
+        this->mPoints += 2;
+        this->renderPoints();
+        this->updateRewardTimeRemaining();
+
+    }
+}
+
+// 更新倒计时剩余时间
+void Game::updateRewardTimeRemaining()
+{
+    start_color();			/* Start color 			*/
+	init_pair(1, COLOR_RED, COLOR_BLACK);
+    wattron(this->mWindows[0], COLOR_PAIR(1)| A_BOLD);
+    mvwprintw(this->mWindows[0], 6, 16, "Remaining time: ");
+    mvwprintw(this->mWindows[0], 6, 16, std::to_string(this->mRewardTimeRemaining).c_str());
+    wrefresh(this->mWindows[0]);
 }
 
 
