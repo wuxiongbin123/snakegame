@@ -3,6 +3,8 @@
 
 #include <vector>
 
+
+class Game;
 enum class Direction
 {
     Up = 0,
@@ -10,6 +12,7 @@ enum class Direction
     Left = 2,
     Right = 3,
 };
+
 
 class SnakeBody
 {
@@ -19,10 +22,29 @@ public:
     int getX() const;
     int getY() const;
     bool operator == (const SnakeBody& snakeBody);
+    void reset(int newX, int newY);
 private:
     int mX;
     int mY;
 };
+enum type{basketball, chick,  centre_parting, overall, magnet};
+
+class Item{
+private:
+    int mX, mY;
+    type tp;
+    char symbol;
+public:
+    Item();
+    Item(int x, int y, type t);
+    int getX() const;
+    int getY() const;
+    int getSymbol() const;
+    type getType() const;
+};
+
+
+
 
 // Snake class should have no depency on the GUI library
 class Snake
@@ -49,9 +71,18 @@ public:
     int getLength();
     SnakeBody createNewHead();
     bool moveFoward();
-
-    Direction getDirection();
-
+    int getBoardWidth() const{ return mGameBoardHeight;}
+    int getBoardHeight() const{ return mGameBoardHeight;}
+    friend Item;
+    friend Game;
+    bool isOccupied(int x, int y);
+    bool eatItem();
+     Direction getDirection();
+     void startReward();
+    void stopReward();
+    void updateRewardCountdown();
+    void processReward();
+    int mRewardTimeRemaining;
 
 private:
     const int mGameBoardWidth;
@@ -60,7 +91,13 @@ private:
     const int mInitialSnakeLength;
     Direction mDirection;
     SnakeBody mFood;
+
     std::vector<SnakeBody> mSnake;
+    std::vector<Item> mItems;
+    bool mBonusActivated;  // Ω±¿¯ «∑Òº§ªÓ
+    int mBonusTime;        // Ω±¿¯ £”‡ ±º‰£®√Î£©
+    int mRewardCountdown;
+    int mRewardPoints;
 };
 
 #endif
