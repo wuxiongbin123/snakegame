@@ -1,4 +1,4 @@
-
+#include <iostream>
 #include "music.h"
 using namespace std;
 
@@ -46,19 +46,19 @@ void playBGM()
     mciSendString(s, 0, 0, 0);
     */
 
-    char a[100];
-     mciSendString(TEXT("open bgm.mp3 alias mysong"),
+
+     mciSendString(TEXT("open bgm2.mp3 alias mysong"),
                        0, 0, 0);
         mciSendString(TEXT("play mysong wait"), 0, 0, 0);
 
-            sprintf(a, TEXT("setaudio music volume to 0"));
-            mciSendString(a, 0, 0, 0);
+
+        mciSendString(TEXT("stop mysong"), 0, 0, 0);
 
 
         while (true){
 
 
-            mciSendString(TEXT("play mysong from 0 wait"), 0, 0, 0);
+            //mciSendString(TEXT("play mysong from 0 wait"), 0, 0, 0);
 
         }
 }

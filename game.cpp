@@ -11,7 +11,8 @@
 
 #include "game.h"
 using namespace std;
-
+ int Game::keeppoints = 0 ;
+ int Game::shut = 0;
 
 Game::Game()
 {
@@ -106,9 +107,10 @@ void Game::renderInformationBoard() const
     mvwprintw(this->mWindows[0], 4, 94, "  ");
     //E
     mvwprintw(this->mWindows[0], 1, 98, "      ");
-    mvwprintw(this->mWindows[0], 2, 98, "      ");
-    mvwprintw(this->mWindows[0], 3, 98, "  ");
-    mvwprintw(this->mWindows[0], 4, 98, "      ");
+    mvwprintw(this->mWindows[0], 2, 98, "  ");
+    mvwprintw(this->mWindows[0], 2, 102, "  ");
+    mvwprintw(this->mWindows[0], 3, 98, "    ");
+    mvwprintw(this->mWindows[0], 4, 98, "       ");
     wattroff(this->mWindows[0], COLOR_PAIR(2)| A_BOLD);
     wrefresh(this->mWindows[0]);
 
@@ -171,7 +173,7 @@ void Game::renderLeaderBoard() const
     wrefresh(this->mWindows[2]);
 }
 
-bool Game::renderRestartMenu() const
+int Game::renderRestartMenu()
 {
     WINDOW * menu;
     int width = this->mGameBoardWidth * 0.5;
@@ -181,8 +183,7 @@ bool Game::renderRestartMenu() const
 
     menu = newwin(height, width, startY, startX);
     box(menu, 0, 0);
-    std::vector<std::string> menuItems = {"Restart", "Quit"};
-
+    std::vector<std::string> menuItems = {"Restart", "Quit","PAY $5 And Revive"};
     int index = 0;
     int offset = 4;
     mvwprintw(menu, 1, 1, "Your Final Score:");
@@ -192,6 +193,7 @@ bool Game::renderRestartMenu() const
     mvwprintw(menu, 0 + offset, 1, menuItems[0].c_str());
     wattroff(menu, A_STANDOUT);
     mvwprintw(menu, 1 + offset, 1, menuItems[1].c_str());
+    mvwprintw(menu, 2 + offset, 1, menuItems[2].c_str());
 
     wrefresh(menu);
 
@@ -225,6 +227,7 @@ bool Game::renderRestartMenu() const
                 wattroff(menu, A_STANDOUT);
                 break;
             }
+
         }
         wrefresh(menu);
         if (key == ' ' || key == 10)
@@ -234,15 +237,20 @@ bool Game::renderRestartMenu() const
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     delwin(menu);
-
+//restart 2 exit 0 pay 1
     if (index == 0)
     {
-        return true;
+        return 2;
     }
-    else
+    else if(index==1)
     {
-        return false;
+        return 0;
     }
+    else if(index ==2)
+    {
+        return 1;
+    }
+
 }
 
 void Game::renderPoints() const
@@ -323,11 +331,11 @@ void Game::renderSnake() const
     int snakeLength = this->mPtrSnake->getLength();
    std::vector<SnakeBody>& snake = this->mPtrSnake->getSnake();
 
-    //�����ӵ���ͷ��ʾ
+    //新增加的蛇头显示
     Direction DIR = this->mPtrSnake->getDirection();
 
-    if(this->mDifficulty >=1&&this->mDifficulty<=2){
-//ֻ�г��ȳ���7�ų���ͷ
+    if(this->mPoints >=5&&this->mPoints<=15){
+//只有长度超过7才长出头
     start_color();			/*color*/
     init_pair(4, COLOR_RED, COLOR_BLACK);
     wattron(this->mWindows[1], COLOR_PAIR(4)| A_BOLD);
@@ -365,7 +373,7 @@ void Game::renderSnake() const
 
 
 
-    else if(this->mDifficulty >=3){//ֻ�г��ȳ���15�ų���ͷ
+    else if(this->mPoints >=15){//只有长度超过15才长出头
     start_color();			/*color*/
     init_pair(5, COLOR_BLUE, COLOR_RED);
     wattron(this->mWindows[1], COLOR_PAIR(5)| A_BOLD);
@@ -471,6 +479,14 @@ void Game::controlSnake() const
 
             break;
         }
+                    case 'H':
+            case'h':
+                {
+                    this->shut++;
+
+                    this->help() ;
+                }
+
         default:
         {
             break;
@@ -509,12 +525,13 @@ void Game::runGame()
 {
     bool moveSuccess;
     int key;
+    this->mPoints = this->keeppoints;
     while (lives > 0)
     {
         this->controlSnake();
         werase(this->mWindows[1]);
         box(this->mWindows[1], 0, 0);
-
+     if(shut%2==0){
         attract_food();
         bool eatFood = this->mPtrSnake->moveFoward();
         bool collision = this->mPtrSnake->checkCollision();
@@ -551,13 +568,13 @@ void Game::runGame()
         std::this_thread::sleep_for(std::chrono::milliseconds(this->mDelay));
 
         refresh();
-    }
+    }}
 }
 
 void Game::startGame()
 {
     refresh();
-    bool choice;
+    int choice;
     while (true)
     {
         this->readLeaderBoard();
@@ -567,10 +584,17 @@ void Game::startGame()
         this->updateLeaderBoard();
         this->writeLeaderBoard();
         choice = this->renderRestartMenu();
-        if (choice == false)
+        if (choice == 0)
         {
             break;
         }
+        else if(choice ==1){
+            this->keeppoints = this->mPoints;
+            this->revive();
+        }
+        else if(choice ==2){this->keeppoints = 0;
+        this->mPoints = 0;
+        this->revive();}
     }
 }
 
@@ -869,11 +893,59 @@ void Game::foodMove() {
     mPtrSnake->mFood = mFood;
 }
 
+void Game::help() const
+{
+    WINDOW * help;
+    int width = this->mGameBoardWidth * 1;
+    int height = this->mGameBoardHeight * 1;
+    int startX =  0;
+    int startY =  this->mInformationHeight;
+
+    help = newwin(height, width, startY, startX);
+    box(help, 0, 0);
+    int index = 0;
+    int offset = 4;
 
 
+mvwprintw(help, 3, 1, " 1.1 小 鸡 仔（  Q ） 擅 长 唱 跳 rap， 当 蛇 在 其 周 围 的 九 宫 格 之 内 ，  ");
+mvwprintw(help, 4, 1, "   蛇 会 因 为 小 鸡 仔 的 rap 而 热 血 。提  速  ，当 离 开 影 响 范 围 时 ， 会 恢 复 原 速 ");
+mvwprintw(help, 5, 1, "1.2 小 鸡 仔 爱 好 是 打 篮 球，如 果 蛇 经 过 时 携 带 篮 球，小 鸡 仔 会 拿 走 篮 球");
+mvwprintw(help, 6, 1, "   并 加 上 2.5 分 作 为 酬 劳 , 但 是 如 果 没 有 携 带 篮 球 ( O )，直 面 小 鸡 仔 时  会 爆 炸");
+mvwprintw(help, 7, 1, "1.3 中 分 （ ^ )：因 过 于 飘 逸，蛇 在 移 动 过 程 中 会 晕 头 转 向，因 此 在");
+mvwprintw(help, 8, 1, "   吃 到 下 一 个 中 分 之 前 / 计 时 3s 之 内 , 蛇 的 运 动 方 向 会 改 变，并 且 全 身 会 变 成 ? ");
+mvwprintw(help, 9 , 1 ,"1.4 背 带 裤(&) ：当 蛇 头  墙 时，会 触 发 铁 山 靠 ，脱 落 左 肩 的 吊 带，更 改 移  向 为 左 边。");
+mvwprintw(help,10,1,"1.5  吸铁石 （ * ） 会 五 秒 内 吸 引 食 物");
+mvwprintw(help,11,1 ,"2.1 奖 励 ：每 当 蛇 长  到 达 5 的 倍 数 时 ，触 发 奖 励 。奖 励 倒 计 时 5s，初 始 奖 励  为 10");
+mvwprintw(help,12,1,"   倒 计 时 每 过 1s，奖 励 减 2 , 而 5 s 后 奖 励 消 失 。倒 计 时 将 实 时 显 示  。");
+mvwprintw(help, 13, 30, "⠀⠀⠀⠀⠰⢷⢿⠄");
+mvwprintw(help, 14, 30, "⠀⠀⠀⠀⠀⣼⣷⣄");
+mvwprintw(help, 15, 30, "⠀⠀⣤⣿⣇⣿⣿⣧⣿⡄");
+mvwprintw(help, 16, 30, "⢴⠾⠋⠀⠀⠻⣿⣷⣿⣿⡀");
+mvwprintw(help, 17, 30, "O  ⠀⢀⣿⣿⡿⢿⠈⣿");
+mvwprintw(help, 18, 30, "⠀⠀⠀⢠⣿⡿⠁⠀⡊⠀⠙");
+mvwprintw(help, 19, 30, "⠀⠀⠀⢿⣿⠀⠀⠹⣿");
+mvwprintw(help, 20, 30, "⠀⠀⠀⢿⣿⠀⠀⠹⣿");
+mvwprintw(help, 21, 30, "⠀⠀⠀⠀⠹⣷⡀⠀⣿⡄ 。");
+mvwprintw(help, 22, 30, "⠀⠀⠀⠀⣀⣼⣿⠀⢈⣧ ");
 
+    this->shutup();
+    wrefresh(help);
 
+}
 
+void Game::shutup() const
+{
+    int key;
+    key = getch();
+    if (key == 'H'||key =='h')
+    {
+    shut++;}
+}
+
+void Game::revive()
+{
+    this->mInitialSnakeLength =this->keeppoints+2;
+}
 
 
 

@@ -49,7 +49,7 @@ public:
     void controlSnake() const;
 
 		void startGame();
-    int renderRestartMenu() const;
+    int renderRestartMenu() ;
     void adjustDelay();
 
     //Functions for Items.
@@ -73,6 +73,9 @@ public:
     void foodMove();
     static int keeppoints ;
     void revive();
+    void help()  const;
+    static int shut;
+        void shutup() const ;
 private:
     // We need to have two windows
     // One is for game introduction
@@ -81,8 +84,8 @@ private:
     int mScreenHeight;
     int mGameBoardWidth;
     int mGameBoardHeight;
-    const int mInformationHeight = 6;
-    const int mInstructionWidth = 18;
+     int mInformationHeight = 6;
+     int mInstructionWidth = 18;
     std::vector<WINDOW *> mWindows;
     // Snake information
      int mInitialSnakeLength = 2;
@@ -95,10 +98,10 @@ private:
     int mDifficulty = 0;
     int mBaseDelay = 100;
     int mDelay;
-    const std::string mRecordBoardFilePath = "record.dat";
+     std::string mRecordBoardFilePath = "record.dat";
     std::vector<int> mLeaderBoard;
     //std::vector<Item> GItems;
-    const int mNumLeaders = 3;
+    int mNumLeaders = 3;
 
 
     //Items.
