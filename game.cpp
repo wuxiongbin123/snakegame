@@ -278,7 +278,7 @@ void Game::initializeGame()
     mFood.reset(51,4);
     this->mPtrSnake->senseFood(this->mFood);
     this->mDifficulty = 0;
-    this->mPoints = 0;
+    this->mPoints = this->keeppoints;
     this->mDelay = this->mBaseDelay;
 
 }
