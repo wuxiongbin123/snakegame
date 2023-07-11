@@ -38,23 +38,22 @@ public:
     void renderPoints() const;
     void renderDifficulty() const;
 
-		void createRandomFood();
+		void createRamdonFood();
     void renderFood() const;
     void renderSnake() const;
-    void controlSnake() const;
+    void controlSnake() ;
 
-    void startGame();
-    bool renderRestartMenu() const;
+		void startGame();
+    int renderRestartMenu() ;
     void adjustDelay();
-    void startReward();
-    void stopReward();
-    void updateRewardCountdown();
-    void processReward();
-    int mRewardTimeRemaining;
 
 
-
-
+    static int keeppoints ;
+    static int shut;
+    void revive();
+    void shutup();
+    void help();
+    friend Snake;
 private:
     // We need to have two windows
     // One is for game introduction
@@ -63,13 +62,11 @@ private:
     int mScreenHeight;
     int mGameBoardWidth;
     int mGameBoardHeight;
-    int mBonusCounter;  // 累计获得奖励的次数
-
     const int mInformationHeight = 6;
     const int mInstructionWidth = 18;
     std::vector<WINDOW *> mWindows;
     // Snake information
-    const int mInitialSnakeLength = 2;
+     int mInitialSnakeLength = 2;
     const char mSnakeSymbol = '@';
     std::unique_ptr<Snake> mPtrSnake;
     // Food information
@@ -82,16 +79,11 @@ private:
     const std::string mRecordBoardFilePath = "record.dat";
     std::vector<int> mLeaderBoard;
     const int mNumLeaders = 3;
-    void increasePoints(int points);  // 增加得分
-    enum class RewardState
-{
-    Inactive,   // 未激活
-    Active,     // 激活状态
-    Countdown   // 倒计时状态
-};
-
 
 
 };
 
 #endif
+
+
+//复活，根据point初始化开始的点数，如果太长则有上限

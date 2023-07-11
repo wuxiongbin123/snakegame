@@ -11,8 +11,6 @@ enum class Direction
     Right = 3,
 };
 
-
-
 class SnakeBody
 {
 public:
@@ -52,15 +50,7 @@ public:
     SnakeBody createNewHead();
     bool moveFoward();
 
-    void activateBonus();        // 激活奖励
-    void deactivateBonus();      // 关闭奖励
-    void updateBonus();          // 更新奖励状态
-    bool isBonusActive() const;  // 检查奖励是否激活
-    int getBonusTime() const;    // 获取奖励剩余时间
-    void reward();      // 处理奖励
-    void renderBonus() const;  // 在游戏界面上显示奖励倒计时
-
-
+    Direction getDirection();
 
 
 private:
@@ -71,12 +61,6 @@ private:
     Direction mDirection;
     SnakeBody mFood;
     std::vector<SnakeBody> mSnake;
-    bool mBonusActivated;  // 奖励是否激活
-    int mBonusTime;        // 奖励剩余时间（秒）
-    int mRewardCountdown;
-    int mRewardTimeRemaining;
-    int mRewardPoints;
-
 };
 
 #endif

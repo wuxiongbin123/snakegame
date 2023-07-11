@@ -30,7 +30,6 @@ bool SnakeBody::operator == (const SnakeBody& snakeBody)
     return (this->getX() == snakeBody.getX() && this->getY() == snakeBody.getY());
 }
 
-
 Snake::Snake(int gameBoardWidth, int gameBoardHeight, int initialSnakeLength): mGameBoardWidth(gameBoardWidth), mGameBoardHeight(gameBoardHeight), mInitialSnakeLength(initialSnakeLength)
 {
     this->initializeSnake();
@@ -59,9 +58,10 @@ void Snake::initializeSnake()
 
 bool Snake::isPartOfSnake(int x, int y)
 {
-    for (int i = 0; i < this->mSnake.size(); i++)
+    SnakeBody temp = SnakeBody(x, y);
+    for (int i = 0; i < this->mSnake.size(); i ++)
     {
-        if (this->mSnake[i].getX() == x && this->mSnake[i].getY() == y)
+        if (this->mSnake[i] == temp)
         {
             return true;
         }
@@ -95,7 +95,8 @@ bool Snake::hitWall()
 bool Snake::hitSelf()
 {
     SnakeBody& head = this->mSnake[0];
-    for (int i = 1; i < this->mSnake.size(); i++)
+    // Exclude the snake head
+    for (int i = 1; i < this->mSnake.size(); i ++)
     {
         if (this->mSnake[i] == head)
         {
@@ -104,6 +105,7 @@ bool Snake::hitSelf()
     }
     return false;
 }
+
 
 bool Snake::touchFood()
 {
@@ -130,21 +132,60 @@ std::vector<SnakeBody>& Snake::getSnake()
 
 bool Snake::changeDirection(Direction newDirection)
 {
-    // 判断新方向是否与当前方向相反
-    if ((newDirection == Direction::Up && this->mDirection == Direction::Down) ||
-        (newDirection == Direction::Down && this->mDirection == Direction::Up) ||
-        (newDirection == Direction::Left && this->mDirection == Direction::Right) ||
-        (newDirection == Direction::Right && this->mDirection == Direction::Left))
+    switch (this->mDirection)
     {
-        // 如果新方向与当前方向相反，则不改变方向，并返回false表示改变失败
-        return false;
+        case Direction::Up:
+        {
+            if (newDirection == Direction::Left || newDirection == Direction::Right)
+            {
+                this->mDirection = newDirection;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        case Direction::Down:
+        {
+            if (newDirection == Direction::Left || newDirection == Direction::Right)
+            {
+                this->mDirection = newDirection;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        case Direction::Left:
+        {
+            if (newDirection == Direction::Up || newDirection == Direction::Down)
+            {
+                this->mDirection = newDirection;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        case Direction::Right:
+        {
+            if (newDirection == Direction::Up || newDirection == Direction::Down)
+            {
+                this->mDirection = newDirection;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 
-    // 否则，更新方向为新方向，并返回true表示成功改变方向
-    this->mDirection = newDirection;
-    return true;
+    return false;
 }
-
 
 
 SnakeBody Snake::createNewHead()
@@ -158,28 +199,35 @@ SnakeBody Snake::createNewHead()
     switch (this->mDirection)
     {
         case Direction::Up:
+        {
             headXNext = headX;
             headYNext = headY - 1;
             break;
+        }
         case Direction::Down:
+        {
             headXNext = headX;
             headYNext = headY + 1;
             break;
+        }
         case Direction::Left:
+        {
             headXNext = headX - 1;
             headYNext = headY;
             break;
+        }
         case Direction::Right:
+        {
             headXNext = headX + 1;
             headYNext = headY;
             break;
+        }
     }
 
     SnakeBody newHead = SnakeBody(headXNext, headYNext);
 
     return newHead;
 }
-
 
 /*
  * If eat food, return true, otherwise return false
@@ -218,3 +266,9 @@ int Snake::getLength()
 {
     return this->mSnake.size();
 }
+
+Direction Snake::getDirection()
+{
+    return mDirection;
+}
+
