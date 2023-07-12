@@ -71,7 +71,7 @@ public:
     void runMagnet();
     void attract_food();
     void foodMove();
-    static int keeppoints ;
+    static float keeppoints ;
     void revive();
     void help()  const;
     static int shut;

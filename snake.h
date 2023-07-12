@@ -76,6 +76,11 @@ public:
     bool isOccupied(int x, int y);
     bool eatItem();
      Direction getDirection();
+     void startReward();
+    void stopReward();
+    void updateRewardCountdown();
+    void processReward();
+    int mRewardTimeRemaining;
 
 private:
     const int mGameBoardWidth;
@@ -87,6 +92,10 @@ private:
 
     std::vector<SnakeBody> mSnake;
     std::vector<Item> mItems;
+    bool mBonusActivated;  // Ω±¿¯ «∑Òº§ªÓ
+    int mBonusTime;        // Ω±¿¯ £”‡ ±º‰£®√Î£©
+    int mRewardCountdown;
+    int mRewardPoints;
 };
 
 #endif

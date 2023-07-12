@@ -9,6 +9,7 @@ using namespace std;
 
 int main()
 {
+
     playSound(soundType::Opening);
     playSound(soundType::BGM);
    Game game;

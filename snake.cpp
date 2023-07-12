@@ -309,7 +309,7 @@ Item::Item(int x, int y, type t) {
         case basketball:
             symbol = 'O';break;
         case chick:
-            symbol = '%';break;
+            symbol = 'Q';break;
         case centre_parting:
             symbol = '^';break;
         case overall:

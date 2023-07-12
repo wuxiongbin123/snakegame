@@ -13,9 +13,9 @@ enum class soundType
     BGM ,
     Chicken ,
     //BaketBall ,
-    //Food ,
+    CollisionChicken ,
     Opening ,
-    //Quit
+    Quit
 };
 
 void playSound(soundType tp);
@@ -30,6 +30,6 @@ void OpeningSound();
 
 void QuitSound();
 
-void FoodSound();
+void CollisionChickenSound();
 
 #endif // MUSIC_H_INCLUDED

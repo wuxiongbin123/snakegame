@@ -11,7 +11,7 @@
 
 #include "game.h"
 using namespace std;
- int Game::keeppoints = 0 ;
+float Game::keeppoints = 0 ;
  int Game::shut = 0;
 
 Game::Game()
@@ -274,13 +274,12 @@ void Game::initializeGame()
     this->mPtrSnake.reset(new Snake(this->mGameBoardWidth, this->mGameBoardHeight, this->mInitialSnakeLength));
     this->changeSnakeSymbol('@');
     this->initializeStatus();
-    //this->createRamdonFood();
-    mFood.reset(51,4);
+    this->createRamdonFood();
     this->mPtrSnake->senseFood(this->mFood);
     this->mDifficulty = 0;
     this->mPoints = this->keeppoints;
-    this->mDelay = this->mBaseDelay;
-
+    this->mDelay;
+    adjustDelay();
 }
 
 void Game::createRamdonFood()
@@ -504,20 +503,19 @@ void Game::renderBoards() const
 void Game::adjustDelay()
 {
     this->mDifficulty = this->mPoints / 5 + moreDifficulty;
-    if (int(mPoints) % 5 == 0)
-    {
-        this->mDelay = this->mBaseDelay * pow(0.75, this->mDifficulty);
-    }
+
+        this->mDelay =( this->mBaseDelay * pow(0.75, this->mDifficulty));
+
 }
 
 void Game::runGame()
 {
     bool moveSuccess;
     int key;
-    this->mPoints = this->keeppoints;
+
     while (lives > 0)
     {
-        if (this->mPoints == 5 && !initializeBasketball) {
+        if (this->mPoints >= 5 && !initializeBasketball) {
             initializeBasketball = true;
             mPtrSnake->mItems.push_back(createRandomItem(chick));//If points >=5, then emerge.
             mPtrSnake->mItems.push_back(createRandomItem(basketball));//p >= 5;
@@ -862,6 +860,10 @@ void Game::initializeStatus() {
     lives = 1;
     moreDifficulty = 0;
     runintoCorner = false;
+    initializeBasketball = false;
+    initializeCentre_parting = false;
+    initializeOverall = false;
+    initializeMagnet = false;
 }
 
 void Game::runMagnet() {

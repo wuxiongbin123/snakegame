@@ -1,4 +1,4 @@
-#include <iostream>
+
 #include "music.h"
 using namespace std;
 
@@ -16,22 +16,22 @@ void playSound(soundType tp)
             thread tid(ChickSound);
             tid.detach();
         }break;
-        /*
-    case soundType::Food:
+
+    case soundType::CollisionChicken:
         {
-            thread tid(FoodSound);
+            thread tid(CollisionChickenSound);
             tid.detach();
-        }break;*/
+        }break;
     case soundType::Opening:
         {
             OpeningSound();
         }break;
-        /*
+
     case soundType::Quit:
         {
             thread tid(QuitSound);
             tid.join();
-        }break;*/
+        }break;
     }
 }
 
@@ -46,26 +46,26 @@ void playBGM()
     mciSendString(s, 0, 0, 0);
     */
 
-
-     mciSendString(TEXT("open bgm2.mp3 alias mysong"),
+    char a[100];
+     mciSendString(TEXT("open bgm.mp3 alias mysong"),
                        0, 0, 0);
         mciSendString(TEXT("play mysong wait"), 0, 0, 0);
 
-
-        mciSendString(TEXT("stop mysong"), 0, 0, 0);
+            sprintf(a, TEXT("setaudio music volume to 0"));
+            mciSendString(a, 0, 0, 0);
 
 
         while (true){
 
 
-            //mciSendString(TEXT("play mysong from 0 wait"), 0, 0, 0);
+            mciSendString(TEXT("play mysong from 0 wait"), 0, 0, 0);
 
         }
 }
 
 void ChickSound()
 {
-         mciSendString(TEXT("open chicken.mp3 alias mysong"),
+         mciSendString(TEXT("open chicken1.mp3 alias mysong"),//I also gave up to play it.
                        NULL, 0, NULL);
         mciSendString(TEXT("play mysong wait"), NULL, 0, NULL);
 
@@ -78,6 +78,21 @@ void OpeningSound()
                        NULL, 0, NULL);
         mciSendString(TEXT("play mysong wait"), NULL, 0, NULL);
 
+}
+
+void QuitSound()
+{
+
+         mciSendString(TEXT("open ed1.mp3 alias mysong"),//I gave up to play ed.
+                       NULL, 0, NULL);
+        mciSendString(TEXT("play mysong wait"), NULL, 0, NULL);
+}
+
+void CollisionChickenSound()
+{
+             mciSendString(TEXT("open collisionChick.mp3 alias mysong"),
+                       NULL, 0, NULL);
+        mciSendString(TEXT("play mysong wait"), NULL, 0, NULL);
 }
 
 
