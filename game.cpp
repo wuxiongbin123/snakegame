@@ -11,7 +11,7 @@
 
 #include "game.h"
 using namespace std;
- int Game::keeppoints = 0 ;
+float Game::keeppoints = 0 ;
  int Game::shut = 0;
 
 Game::Game()
@@ -156,19 +156,19 @@ void Game::renderInstructionBoard() const
 void Game::renderLeaderBoard() const
 {
     // If there is not too much space, skip rendering the leader board
-    if (this->mScreenHeight - this->mInformationHeight - 14 - 2 < 3 * 2)
+    if (this->mScreenHeight - this->mInformationHeight - 18 - 2 < 3 * 2)
     {
         return;
     }
-    mvwprintw(this->mWindows[2], 14, 1, "Leader Board");
+    mvwprintw(this->mWindows[2], 18, 1, "Leader Board");
     std::string pointString;
     std::string rank;
-    for (int i = 0; i < std::min(this->mNumLeaders, this->mScreenHeight - this->mInformationHeight - 14 - 2); i ++)
+    for (int i = 0; i < std::min(this->mNumLeaders, this->mScreenHeight - this->mInformationHeight - 18 - 2); i ++)
     {
         pointString = std::to_string(this->mLeaderBoard[i]);
         rank = "#" + std::to_string(i + 1) + ":";
-        mvwprintw(this->mWindows[2], 14 + (i + 1), 1, rank.c_str());
-        mvwprintw(this->mWindows[2], 14 + (i + 1), 5, pointString.c_str());
+        mvwprintw(this->mWindows[2], 18 + (i + 1), 1, rank.c_str());
+        mvwprintw(this->mWindows[2], 18 + (i + 1), 5, pointString.c_str());
     }
     wrefresh(this->mWindows[2]);
 }
@@ -274,13 +274,12 @@ void Game::initializeGame()
     this->mPtrSnake.reset(new Snake(this->mGameBoardWidth, this->mGameBoardHeight, this->mInitialSnakeLength));
     this->changeSnakeSymbol('@');
     this->initializeStatus();
-    //this->createRamdonFood();
-    mFood.reset(51,4);
+    this->createRamdonFood();
     this->mPtrSnake->senseFood(this->mFood);
     this->mDifficulty = 0;
     this->mPoints = this->keeppoints;
-    this->mDelay = this->mBaseDelay;
-
+    this->mDelay;
+    adjustDelay();
 }
 
 void Game::createRamdonFood()
@@ -504,10 +503,9 @@ void Game::renderBoards() const
 void Game::adjustDelay()
 {
     this->mDifficulty = this->mPoints / 5 + moreDifficulty;
-    if (int(mPoints) % 5 == 0)
-    {
-        this->mDelay = this->mBaseDelay * pow(0.75, this->mDifficulty);
-    }
+
+        this->mDelay =( this->mBaseDelay * pow(0.75, this->mDifficulty));
+
 }
 
 void Game::runGame()
@@ -515,19 +513,18 @@ void Game::runGame()
     bool moveSuccess;
     int key;
 
-    // 奖励相关变量
+        // 奖励相关变量
     int rewardScore = 5;
     int rewardPoints = 0;
     int totalRewardPoints = 0;
     std::chrono::high_resolution_clock::time_point rewardStartTime;
 
-    this->mPoints = this->keeppoints;
     while (lives > 0)
     {
-        if (this->mPoints == 5 && !initializeBasketball) {
+        if (this->mPoints >= 5 && !initializeBasketball) {
             initializeBasketball = true;
-            mPtrSnake->mItems.push_back(createRandomItem(chick)); // If points >=5, then emerge.
-            mPtrSnake->mItems.push_back(createRandomItem(basketball)); // p >= 5;
+            mPtrSnake->mItems.push_back(createRandomItem(chick));//If points >=5, then emerge.
+            mPtrSnake->mItems.push_back(createRandomItem(basketball));//p >= 5;
         }
         if (this->mPoints >= 10 && !initializeCentre_parting) {
             initializeCentre_parting = true;
@@ -541,44 +538,45 @@ void Game::runGame()
             initializeMagnet = true;
             mPtrSnake->mItems.push_back(createRandomItem(magnet));
         }
-
         this->controlSnake();
         werase(this->mWindows[1]);
         box(this->mWindows[1], 0, 0);
-
-        if (shut % 2 == 0) {
-            attract_food();
-            bool eatFood = this->mPtrSnake->moveFoward();
-            bool collision = this->mPtrSnake->checkCollision();
-            if (collision)
-            {
-                if (!withOverall) break;
-                else {
-                    withOverall = false;
-                    mPtrSnake->mItems[3] = createRandomItem(overall);
-                    shoulderCharge();
-                    if (runintoCorner) break;
-                }
+     if(shut%2==0){
+        attract_food();
+        bool eatFood = this->mPtrSnake->moveFoward();
+        bool collision = this->mPtrSnake->checkCollision();
+        if (collision)
+        {
+            if (!withOverall) break;
+            else{
+                withOverall = false;
+                mPtrSnake->mItems[3] = createRandomItem(overall);
+                shoulderCharge();
+                if (runintoCorner) break;
             }
-            this->renderSnake();
+        }
+        this->renderSnake();
 
-            if (eatFood)
-            {
-                this->mPoints++; // 增加普通得分
-                this->createRamdonFood();
-                this->mPtrSnake->senseFood(this->mFood);
-            }
 
-            eatItem();
-            influenceBychick();
-            this->adjustDelay();
+        if (eatFood)
+        {
+            this->mPoints += 1;
+            this->createRamdonFood();
+            this->mPtrSnake->senseFood(this->mFood);
 
-            this->renderFood();
-            this->renderDifficulty();
-            this->renderPoints();
-            this->renderItem();
-                    // 奖励得分部分
-        if (int(this->mPoints) % rewardScore == 0)
+        }
+
+        eatItem();
+        influenceBychick();
+        this->adjustDelay();
+
+
+
+        this->renderFood();
+        this->renderDifficulty();
+        this->renderPoints();
+        this->renderItem();
+         if (int(this->mPoints) % rewardScore == 0)
         {
             rewardPoints = 10;  // 设置初始奖励分数
             rewardStartTime = std::chrono::high_resolution_clock::now();
@@ -606,25 +604,23 @@ void Game::runGame()
             }
             else
             {
-                mvwprintw(this->mWindows[2], 13, 1, "Reward Timer: %d", remainingTime);
-                mvwprintw(this->mWindows[2], 14, 1, "Reward Points: %d", totalRewardPoints);
+                mvwprintw(this->mWindows[2], 14, 1, "Reward Timer: %d", remainingTime);
+                mvwprintw(this->mWindows[2], 16, 1, "Reward Points: %d", totalRewardPoints);
             }
         }
         else
         {
-            mvwprintw(this->mWindows[2], 13, 1, "Reward Timer: 0");
-            mvwprintw(this->mWindows[2], 14, 1, "Reward Points: %d", totalRewardPoints);
+            mvwprintw(this->mWindows[2], 14, 1, "Reward Timer: 0");
+            mvwprintw(this->mWindows[2], 16, 1, "Reward Points: %d", totalRewardPoints);
         }
+
+
 
         std::this_thread::sleep_for(std::chrono::milliseconds(this->mDelay));
 
         refresh();
-        }
-
-
-    }
+    }}
 }
-
 
 void Game::startGame()
 {
@@ -641,7 +637,7 @@ void Game::startGame()
         choice = this->renderRestartMenu();
         if (choice == 0)
         {
-
+            playSound(soundType::Quit);
             break;
 
         }
@@ -910,6 +906,10 @@ void Game::initializeStatus() {
     lives = 1;
     moreDifficulty = 0;
     runintoCorner = false;
+    initializeBasketball = false;
+    initializeCentre_parting = false;
+    initializeOverall = false;
+    initializeMagnet = false;
 }
 
 void Game::runMagnet() {
